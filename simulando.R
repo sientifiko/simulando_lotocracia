@@ -147,7 +147,8 @@ dat$p2020 <- dat$pob2020/sum(dat$pob2020)
 # sacar escaños por comuna redondeando hacia arriba, en un escenario ajustamos a la población
 # a su raíz cuadrada
 dat$escanos_simple <- ceiling(dat$pob2020 * dat$p2020)
-dat$escanos <- ceiling(sqrt(dat$pob2020) * dat$p2020)
+dat$escanos <- ceiling('^'(dat$pob2020, 1/3) * dat$p2020)
+
 
 # Tamaño de congreso hipotético
 sum(dat$escanos_simple)
@@ -157,23 +158,30 @@ sum(dat$escanos)
 dat$pescanos <- dat$escanos/sum(dat$escanos) 
 
 # distorción con respecto a proporción real de personas
-dat$distorcion <- dat$p2020 - dat$pescanos
+dat$distorsion <- dat$p2020 - dat$pescanos
 
 #graficar distorsión
 ggplot(dat, aes(reorder(Nombre.comuna, 
-                        distorcion), 
-                distorcion)) +
+                        distorsion), 
+                distorsion)) +
   geom_col() +
   coord_flip() +
   theme(axis.text.y = element_blank()) +
-  scale_y_continuous(limits = c(-.01, .01)) +
+  scale_y_continuous(limits = c(-.03, .03)) +
   labs(x="", y="", title = "Distorsión", 
        subtitle = "Proporción comunal real menos proproción en cámara")
 
 # distorciones máximas y mínimas
-max(dat$distorcion) * 100
-min(dat$distorcion) * 100
+max(dat$distorsion) * 100
+min(dat$distorsion) * 100
 
+
+# asociación tamaño distorsión
+ggplot(dat, aes(pob2020, distorsion)) +
+  geom_jitter()
+
+# cantidad de comunas con un escaño
+sum(dat$escanos==1)
 
 # Comparar probabilidad de ser electo por comunas con proba simple vs proba estratificada
 # R es un maldito lenguaje colonial y la conchetumare que no sabe leer palabras latinas desde un 
@@ -182,7 +190,8 @@ min(dat$distorcion) * 100
 
 
 # saco la cantidad de escaños correspondiente a cada comuna
-dat$escanos_2016 <- ceiling(sqrt(dat$pob2016)*(dat$pob2016/sum(dat$pob2016)))
+dat$escanos_2016 <- ceiling('^'(dat$pob2016, 1/3)*(dat$pob2016/sum(dat$pob2016)))
+
 
 # saco la probabilidad de ser electo según el padrón (personas en edad de votar)
 dat$p_electo_2016 <- dat$escanos_2016/dat$padron2016
@@ -193,6 +202,7 @@ ggplot(dat,aes(padron2016, p_electo_2016)) +
   scale_x_continuous(trans = "log10") +
   scale_y_continuous(limits = c(0,.01)) +
   geom_hline(yintercept = 1/sum(dat$padron2016), color= "red") +
+  theme(axis.text.x = element_text(angle = 90)) +
   labs(x="Tamaño de la comuna", y="Probabilidad de ocupar un escaño",
        title = "Probabilidad de ser electo según tú comuna",
        subtitle = "Con base al padrón y población del 2016") 
