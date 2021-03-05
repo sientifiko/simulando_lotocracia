@@ -167,17 +167,39 @@ ggplot(dat, aes(reorder(Nombre.comuna,
   coord_flip() +
   theme(axis.text.y = element_blank()) +
   scale_y_continuous(limits = c(-.01, .01)) +
-  labs(x="", y="", title = "Distorsión proporción comunal real menos proproción en cámara")
+  labs(x="", y="", title = "Distorsión", 
+       subtitle = "Proporción comunal real menos proproción en cámara")
 
+# distorciones máximas y mínimas
 max(dat$distorcion) * 100
 min(dat$distorcion) * 100
 
 
+# Comparar probabilidad de ser electo por comunas con proba simple vs proba estratificada
+# R es un maldito lenguaje colonial y la conchetumare que no sabe leer palabras latinas desde un 
+# excel, así que saqué los datos del padrón weando con excel, se puede a traves de una tabla dinámica
+# y aplicando indice-coincidir, dejo los dataset que usé por si quieren reconstruirlo a mano
 
 
+# saco la cantidad de escaños correspondiente a cada comuna
+dat$escanos_2016 <- ceiling(sqrt(dat$pob2016)*(dat$pob2016/sum(dat$pob2016)))
+
+# saco la probabilidad de ser electo según el padrón (personas en edad de votar)
+dat$p_electo_2016 <- dat$escanos_2016/dat$padron2016
+
+# grafico
+ggplot(dat,aes(padron2016, p_electo_2016)) +
+  geom_jitter() +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(limits = c(0,.01)) +
+  geom_hline(yintercept = 1/sum(dat$padron2016), color= "red") +
+  labs(x="Tamaño de la comuna", y="Probabilidad de ocupar un escaño",
+       title = "Probabilidad de ser electo según tú comuna",
+       subtitle = "Con base al padrón y población del 2016") 
 
 
-
+# cantidad de comunas que en que probabilidad de ser electo bajo estratificada es menor a simple
+sum(dat$p_electo_2016 < 1/sum(dat$padron2016))
 
 
 
