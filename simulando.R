@@ -1,6 +1,6 @@
 
 library(tidyverse)
-library(patchwork)
+library(xlsx)
 
 options(scipen = 999)
 
@@ -136,6 +136,48 @@ ggplot() +
   labs(x="",y="", 
        caption = paste0("N= ", n, ", n= ", sample, ", rep= 1000"),
        title = "Representación de minoría (minoría concentrada)")
+
+# weando con el censo
+dat <- read.xlsx("Poblacion-Comunas-Chile-INE-2015-2020-Llam-Nac-Concurso-2020-DS19.xlsx",
+                 sheetIndex = 1)
+
+#sacar proporción de personas por comuna respecto del total
+dat$p2020 <- dat$pob2020/sum(dat$pob2020)
+
+# sacar escaños por comuna redondeando hacia arriba, en un escenario ajustamos a la población
+# a su raíz cuadrada
+dat$escanos_simple <- ceiling(dat$pob2020 * dat$p2020)
+dat$escanos <- ceiling(sqrt(dat$pob2020) * dat$p2020)
+
+# Tamaño de congreso hipotético
+sum(dat$escanos_simple)
+sum(dat$escanos)
+
+# proporción real de escaños
+dat$pescanos <- dat$escanos/sum(dat$escanos) 
+
+# distorción con respecto a proporción real de personas
+dat$distorcion <- dat$p2020 - dat$pescanos
+
+#graficar distorsión
+ggplot(dat, aes(reorder(Nombre.comuna, 
+                        distorcion), 
+                distorcion)) +
+  geom_col() +
+  coord_flip() +
+  theme(axis.text.y = element_blank()) +
+  scale_y_continuous(limits = c(-.01, .01)) +
+  labs(x="", y="", title = "Distorsión proporción comunal real menos proproción en cámara")
+
+max(dat$distorcion) * 100
+min(dat$distorcion) * 100
+
+
+
+
+
+
+
 
 
 
