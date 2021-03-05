@@ -147,7 +147,7 @@ dat$p2020 <- dat$pob2020/sum(dat$pob2020)
 # sacar escaños por comuna redondeando hacia arriba, en un escenario ajustamos a la población
 # a su raíz cuadrada
 dat$escanos_simple <- ceiling(dat$pob2020 * dat$p2020)
-dat$escanos <- ceiling('^'(dat$pob2020, 1/3) * dat$p2020)
+dat$escanos <- ceiling(dat$pob2020^1/3 * dat$p2020)
 
 
 # Tamaño de congreso hipotético
@@ -190,7 +190,7 @@ sum(dat$escanos==1)
 
 
 # saco la cantidad de escaños correspondiente a cada comuna
-dat$escanos_2016 <- ceiling('^'(dat$pob2016, 1/3)*(dat$pob2016/sum(dat$pob2016)))
+dat$escanos_2016 <- ceiling(pob2016^1/3*(dat$pob2016/sum(dat$pob2016)))
 
 
 # saco la probabilidad de ser electo según el padrón (personas en edad de votar)
@@ -210,23 +210,6 @@ ggplot(dat,aes(padron2016, p_electo_2016)) +
 
 # cantidad de comunas que en que probabilidad de ser electo bajo estratificada es menor a simple
 sum(dat$p_electo_2016 < 1/sum(dat$padron2016))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
